@@ -12,6 +12,7 @@ mongoose.connect('mongodb://localhost/node-graphql', { promiseLibrary: require('
   .then(() =>  console.log('connection successful'))
   .catch((err) => console.error(err));
 
+var bioRouter = require('./routes/bio');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
@@ -35,6 +36,7 @@ app.use('/graphql', cors(), graphqlHTTP({
   rootValue: global,
   graphiql: true,
 }));
+app.use('/bio', bioRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
