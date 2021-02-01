@@ -5,7 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose');
 var graphqlHTTP = require('express-graphql');
-var schema = require('./graphql/bookSchemas');
+var schema = require('./graphql/savedOpportunitySchemas');
 var cors = require("cors");
 
 mongoose.connect('mongodb://localhost/node-graphql', { promiseLibrary: require('bluebird'), useNewUrlParser: true })
