@@ -4,4 +4,4 @@
 
 # Design
 
-
+![Deploy Diagram](torre-architecture.png)
