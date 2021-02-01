@@ -1,20 +1,21 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import './App.css';
+import './List.css';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 
 const GET_BOOKS = gql`
   {
-    books {
+    savedOpportunities {
       _id
-      title
-      author
+      id_user
+      id_opportunity
+      comment
     }
   }
 `;
 
-class Main extends Component {
+class List extends Component {
 
   render() {
     return (
@@ -28,23 +29,27 @@ class Main extends Component {
               <div className="panel panel-default">
                 <div className="panel-heading">
                   <h3 className="panel-title">
-                    LIST OF BOOKS
+                    Saved Opportunities
                   </h3>
-                  <h4><Link to="/create">Add Book</Link></h4>
+                  <h4><Link to="/create">Add</Link></h4>
                 </div>
                 <div className="panel-body">
                   <table className="table table-stripe">
                     <thead>
                       <tr>
-                        <th>Title</th>
-                        <th>Author</th>
+                        <th></th>
+                        <th>User ID</th>
+                        <th>Opportunity ID</th>
+                        <th>Comment</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {data.books.map((book, index) => (
+                      {data.savedOpportunities.map((savedOpportunity, index) => (
                         <tr key={index}>
-                          <td><Link to={`/show/${book._id}`}>{book.title}</Link></td>
-                          <td>{book.author}</td>
+                          <td><Link to={`/show/${savedOpportunity._id}`}>See</Link></td>
+                          <td>{savedOpportunity.id_user}</td>
+                          <td>{savedOpportunity.id_opportunity}</td>
+                          <td>{savedOpportunity.comment}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -59,4 +64,4 @@ class Main extends Component {
   }
 }
 
-export default Main;
+export default List;
