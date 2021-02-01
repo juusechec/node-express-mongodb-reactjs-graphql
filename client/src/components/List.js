@@ -4,7 +4,7 @@ import './List.css';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 
-const GET_BOOKS = gql`
+const GET_SAVED_OPPORTUNITIES = gql`
   {
     savedOpportunities {
       _id
@@ -19,7 +19,7 @@ class List extends Component {
 
   render() {
     return (
-      <Query pollInterval={500} query={GET_BOOKS}>
+      <Query pollInterval={500} query={GET_SAVED_OPPORTUNITIES}>
         {({ loading, error, data }) => {
           if (loading) return 'Loading...';
           if (error) return `Error! ${error.message}`;
