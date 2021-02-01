@@ -1,3 +1,6 @@
 [submodule "server"]
 	path = server
 	url = https://github.com/juusechec/node-express-mongodb-reactjs-graphql-server.git
+[submodule "client"]
+	path = client
+	url = https://github.com/juusechec/node-express-mongodb-reactjs-graphql-client.git
