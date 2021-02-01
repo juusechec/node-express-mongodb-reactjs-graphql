@@ -6,18 +6,20 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 import App from './App';
+import Main from './Main';
 import * as serviceWorker from './serviceWorker';
 import Edit from './components/Edit';
 import Create from './components/Create';
 import Show from './components/Show';
 
-const client = new ApolloClient({ uri: 'http://localhost:3000/graphql' });
+const client = new ApolloClient({ uri: 'http://localhost:3001/graphql' });
 
 ReactDOM.render(
     <ApolloProvider client={client}>
         <Router>
             <div>
-                <Route exact path='/' component={App} />
+            <Route exact path='/' component={Main} />
+                <Route exact path='/app' component={App} />
                 <Route path='/edit/:id' component={Edit} />
                 <Route path='/create' component={Create} />
                 <Route path='/show/:id' component={Show} />
