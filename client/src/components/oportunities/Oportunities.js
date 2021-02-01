@@ -9,43 +9,83 @@ class Oportunities extends Component {
     this.state = {
       error: null,
       isLoaded: false,
-      bio: {},
+      oportunities: [],
       value: "",
     };
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  getBioData(username) {
-    const apiUrl = `${config.bioEndpoint}?username=${username}`;
-    fetch(apiUrl)
+  async componentDidMount() {
+    const bio = JSON.parse(sessionStorage.getItem("bio"));
+    const summaryOfBio = bio.person.summaryOfBio;
+    const keywords = await this.getKeywords(summaryOfBio);
+    console.log("keywords", keywords);
+    this.getOpportunities(keywords);
+  }
+
+  getKeywords(summaryOfBio) {
+    const url = "http://localhost:3001/extract";
+    const body = {
+      data: summaryOfBio,
+      word_qty: 10,
+    };
+    return new Promise((resolve, reject) => {
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          resolve(data);
+        })
+        .catch((reason) => {
+          reject(reason);
+        });
+    });
+  }
+
+  getOpportunities(keywords) {
+    const apiUrl = `${config.postEndpoint}/opportunities/_search/?currency=USD%24&page=0&periodicity=hourly&lang=en&size=20&aggregate=false&offset=0`;
+    const body = {
+      or: [
+        {
+          "skill/role": {
+            text: "machine learning",
+            experience: "potential-to-develop",
+          },
+        },
+        { "skill/role": { text: "react", experience: "potential-to-develop" } },
+        {
+          "skill/role": { text: "angular", experience: "potential-to-develop" },
+        },
+      ],
+    };
+    console.log("getOpportunities api url", apiUrl);
+    fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    })
       .then((response) => response.json())
       .then((data) => {
-        console.log("BIO DATA", data);
-        if (!data.person) {
+        console.log("OPPORTUNITIES DATA", data);
+        if (!data.results) {
           this.setState({
-            error: "That bio isn't exists!",
+            error: "That link isn't exists!",
             isLoaded: false,
           });
         } else {
-          sessionStorage.setItem("bio", JSON.stringify(data));
           this.setState({
             isLoaded: true,
-            bio: data,
+            oportunities: data.results,
             error: null,
           });
         }
       });
-  }
-
-  handleSubmit(event) {
-    alert("A name was submitted: " + this.state.value);
-    event.preventDefault();
-    this.getBioData(this.state.value);
-  }
-
-  handleChange(event) {
-    this.setState({ value: event.target.value });
   }
 
   render() {
@@ -54,25 +94,7 @@ class Oportunities extends Component {
         <div className="container">
           <div className="panel panel-default">
             <div className="panel-heading">
-              <h3 className="panel-title">What's your bio?</h3>
-            </div>
-            <div className="panel-body">
-              {this.state.error && (
-                <label>
-                  <div>Error: {this.state.error}</div>
-                </label>
-              )}
-              <form onSubmit={this.handleSubmit}>
-                <label>
-                  BioId:
-                  <input
-                    type="text"
-                    value={this.state.value}
-                    onChange={this.handleChange}
-                  />
-                </label>
-                <input type="submit" value="Search" />
-              </form>
+              <h3 className="panel-title">Cargando...</h3>
             </div>
           </div>
         </div>
@@ -82,23 +104,17 @@ class Oportunities extends Component {
         <div className="container">
           <div className="panel panel-default">
             <div className="panel-heading">
-              <h3 className="panel-title">That's your bio</h3>
-              <h4>Bio</h4>
+              <h3 className="panel-title">That's your work selection</h3>
+              <h4>Opportunities</h4>
             </div>
             <div className="panel-body">
               <ul>
-                {/* {Object.keys(this.state.bio).map((key) => (
-                  <li key={key}>{this.state.bio[key]}</li>
-                ))} */}
-                <li>Fullname: {this.state.bio.person.name}</li>
-                <li>Summary: {this.state.bio.person.summaryOfBio}</li>
+                {this.state.oportunities.map((opportunity, index) => (
+                  <a href={`https://torre.co/jobs/${opportunity.id}`}>
+                    <li key={index}>{opportunity.objective}</li>
+                  </a>
+                ))}
               </ul>
-              <Link
-                to={`/opportunities/${this.state.value}`}
-                className="btn btn-success"
-              >
-                See job opportunities!
-              </Link>
             </div>
           </div>
         </div>
