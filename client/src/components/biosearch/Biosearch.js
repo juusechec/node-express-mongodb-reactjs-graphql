@@ -39,7 +39,7 @@ class Biosearch extends Component {
   }
 
   handleSubmit(event) {
-    alert("A name was submitted: " + this.state.value);
+    console.log("A name was submitted: " + this.state.value);
     event.preventDefault();
     this.getBioData(this.state.value);
   }
@@ -88,9 +88,6 @@ class Biosearch extends Component {
             </div>
             <div className="panel-body">
               <ul>
-                {/* {Object.keys(this.state.bio).map((key) => (
-                  <li key={key}>{this.state.bio[key]}</li>
-                ))} */}
                 <li>Fullname: {this.state.bio.person.name}</li>
                 <li>Summary: {this.state.bio.person.summaryOfBio}</li>
               </ul>

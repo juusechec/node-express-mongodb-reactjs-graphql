@@ -1,7 +1,25 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import gql from "graphql-tag";
+import { Mutation } from "react-apollo";
 import config from "../../config";
 import "./Oportunities.css";
+import { Link } from "react-router-dom";
+
+const ADD_SAVED_OPPORTUNITY = gql`
+  mutation AddSavedOpportunity(
+    $id_user: String!
+    $id_opportunity: String!
+    $comment: String!
+  ) {
+    addSavedOpportunity(
+      id_user: $id_user
+      id_opportunity: $id_opportunity
+      comment: $comment
+    ) {
+      _id
+    }
+  }
+`;
 
 class Oportunities extends Component {
   constructor(props) {
@@ -10,16 +28,22 @@ class Oportunities extends Component {
       error: null,
       isLoaded: false,
       oportunities: [],
+      criteria: [],
       value: "",
+      userId: "",
     };
   }
 
   async componentDidMount() {
+    // console.log("styles", styles);
     const bio = JSON.parse(sessionStorage.getItem("bio"));
+    this.setState({
+      userId: bio.person.publicId
+    });
     const summaryOfBio = bio.person.summaryOfBio;
     const keywords = await this.getKeywords(summaryOfBio);
     console.log("keywords", keywords);
-    this.getOpportunities(keywords);
+    this.getOpportunities(keywords.keywords);
   }
 
   getKeywords(summaryOfBio) {
@@ -48,19 +72,19 @@ class Oportunities extends Component {
 
   getOpportunities(keywords) {
     const apiUrl = `${config.postEndpoint}/opportunities/_search/?currency=USD%24&page=0&periodicity=hourly&lang=en&size=20&aggregate=false&offset=0`;
+    const criteria = [];
+    for (let index = 0; index < keywords.length; index++) {
+      const word = keywords[index].parsed_value;
+      criteria.push({
+        "skill/role": {
+          text: word,
+          experience: "potential-to-develop",
+        },
+      });
+    }
+    console.log("criteria", criteria);
     const body = {
-      or: [
-        {
-          "skill/role": {
-            text: "machine learning",
-            experience: "potential-to-develop",
-          },
-        },
-        { "skill/role": { text: "react", experience: "potential-to-develop" } },
-        {
-          "skill/role": { text: "angular", experience: "potential-to-develop" },
-        },
-      ],
+      or: criteria,
     };
     console.log("getOpportunities api url", apiUrl);
     fetch(apiUrl, {
@@ -82,6 +106,7 @@ class Oportunities extends Component {
           this.setState({
             isLoaded: true,
             oportunities: data.results,
+            criteria: criteria,
             error: null,
           });
         }
@@ -101,23 +126,68 @@ class Oportunities extends Component {
       );
     } else {
       return (
-        <div className="container">
-          <div className="panel panel-default">
-            <div className="panel-heading">
-              <h3 className="panel-title">That's your work selection</h3>
-              <h4>Opportunities</h4>
+        <Mutation
+          mutation={ADD_SAVED_OPPORTUNITY}
+          onCompleted={() => {
+            console.log("OK!!!!!!");
+            // this.props.history.push("/")
+          }}
+        >
+          {(addSavedOpportunity, { loading, error }) => (
+            <div className="container">
+              <div className="panel panel-default">
+                <div className="panel-heading">
+                  <h3 className="panel-title">That's your work selection</h3>
+                  <h4>Opportunities</h4>
+                </div>
+                <div className="panel-body">
+                  <ul>
+                    {this.state.oportunities.map((opportunity, index) => (
+                      <div key={`opportunity${index}`}>
+                        <a
+                          href={`https://torre.co/jobs/${opportunity.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text"
+                        >
+                          <li>{opportunity.objective}</li>
+                        </a>
+                        <div
+                          className="star"
+                          onClick={() => {
+                            addSavedOpportunity({
+                              variables: {
+                                id_user: this.state.userId,
+                                id_opportunity: opportunity.id,
+                                comment: opportunity.objective,
+                              },
+                            });
+                            alert("Saved opportunity!");
+                          }}
+                        ></div>
+                      </div>
+                    ))}
+                  </ul>
+                  <br />
+                  <h4>Some keywords detected for you bio</h4>
+                  <ul>
+                    {this.state.criteria.map((crit, index) => (
+                      <li key={`criteria${index}`}>
+                        {crit["skill/role"].text}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    to="/list"
+                    className="btn btn-success"
+                  >
+                    See saved opportunities
+                  </Link>
+                </div>
+              </div>
             </div>
-            <div className="panel-body">
-              <ul>
-                {this.state.oportunities.map((opportunity, index) => (
-                  <a href={`https://torre.co/jobs/${opportunity.id}`}>
-                    <li key={index}>{opportunity.objective}</li>
-                  </a>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
+          )}
+        </Mutation>
       );
     }
   }

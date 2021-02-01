@@ -31,7 +31,7 @@ class List extends Component {
                   <h3 className="panel-title">
                     Saved Opportunities
                   </h3>
-                  <h4><Link to="/create">Add</Link></h4>
+                  {/* <h4><Link to="/create">Add</Link></h4> */}
                 </div>
                 <div className="panel-body">
                   <table className="table table-stripe">
