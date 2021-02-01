@@ -1,0 +1,3 @@
+[submodule "server"]
+	path = server
+	url = https://github.com/juusechec/node-express-mongodb-reactjs-graphql-server.git
