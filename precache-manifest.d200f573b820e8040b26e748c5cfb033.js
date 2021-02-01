@@ -20,7 +20,7 @@ self.__precacheManifest = [
     "url": "/node-express-mongodb-reactjs-graphql/static/js/2.3b408aff.chunk.js"
   },
   {
-    "revision": "f5bc7caf0caa28923884d129cc398b7e",
+    "revision": "ff3e3e73eef87960381ebff5fe9f57b4",
     "url": "/node-express-mongodb-reactjs-graphql/index.html"
   }
 ];
